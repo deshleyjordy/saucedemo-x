@@ -19,7 +19,7 @@ pipeline {
         stage('Test') {
             steps {
                 // 
-                sh robot --outputdir /test-results .
+                sh robot .
             }
         }
         
