@@ -1,40 +1,22 @@
 pipeline {
-    agent any
-    
+    agent { label "robot" } // run on an agent, which has Robot Framework installed
+
     stages {
-        stage('Checkout') {
+        stage("Run Robot") {
             steps {
-                // Checkout code from GitHub repository
-                git 'https://github.com/deshleyjordy/saucedemo-x'
-            }
-        }
-        
-        stage('Build') {
-            steps {
-                // Build your project, just echo'ing now
-                sh 'echo "Deploying artifacts"'
-            }
-        }
-        
-        stage('Test') {
-            steps {
-                // 
-                sh 'echo "Testing"'
-            }
-        }
-        
-        stage('Deploy') {
-            steps {
-                // Deploy artifacts, just echo'ing now
-                sh 'echo "Deploying artifacts"'
+                // --nostatusrc prevents your job from failing automatically if any
+                // tests fail. This is then later handled with the RF plugin with
+                // pass thresholds
+                sh script: "robot --nostatusrc .", returnStatus: true
             }
         }
     }
-    
+
     post {
         always {
-            // Clean up or perform any post-build actions
-            echo 'Pipeline finished!!!'
+            // `onlyCritical: false` is for RF 3.x compatibility. This will be deprecated
+            // and removed in the future.
+            robot outputPath: '.', passThreshold: 80.0, unstableThreshold: 70.0, onlyCritical: false
         }
     }
 }
